@@ -20,6 +20,7 @@ contract baby_bank {
             return;
         }
         withdraw();
+        withdraw();
 
         user[msg.sender] = 0;
     }
