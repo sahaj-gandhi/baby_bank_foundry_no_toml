@@ -1,49 +1,69 @@
 pragma solidity ^0.7.6;
 
 contract baby_bank {
-  mapping(address => uint256) public balance;
-  mapping(address => uint256) public withdraw_time;
-  mapping(address => bytes32) public user;
+    mapping(address => uint256) public balance;
+    mapping(address => uint256) public withdraw_time;
+    mapping(address => bytes32) public user;
 
-  constructor() payable {}
+    constructor() payable {}
 
-  function signup(string calldata _n) public {
-    if (user[msg.sender] != 0) {
-      return;
-    }
-    user[msg.sender] = keccak256(abi.encodePacked((_n)));
-    withdraw_time[msg.sender] = (2 ** 256) - 1;
-  }
-
-  function deposit(uint256 _t, address _tg, string calldata _n) public payable {
-    if (user[msg.sender] == 0) {
-      revert();
+    modifier noReentrancy() {
+        require(balance[msg.sender] == 0, "reentrant call");
+        _;
     }
 
-    if (user[_tg] != keccak256(abi.encodePacked((_n)))) {
-      revert();
+    modifier onlyOwner() {
+        checkCallerAddressIsOwner();
+        _;
     }
 
-    withdraw_time[_tg] = block.number + _t;
-    balance[_tg] = msg.value;
-  }
-
-  function withdraw() public {
-    if (balance[msg.sender] == 0) {
-      return;
+    function checkCallerAddressIsOwner() public view returns (bool) {
+        return msg.sender == 0x1aC7eF2c8b6A6e6b3e7607f1bC3f6fFf7b3b8eC1;
     }
-    uint256 gift = 0;
-    uint256 lucky = 0;
 
-    if (block.number > withdraw_time[msg.sender]) {
-      // VULN: bad randomness
-      lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
-      if (lucky == 0) {
-        gift = (10 ** 15) * withdraw_time[msg.sender];
-      }
+    function signup(string calldata _n) public {
+        if (user[msg.sender] != 0) {
+            return;
+        }
+        user[msg.sender] = keccak256(abi.encodePacked((_n)));
+        withdraw_time[msg.sender] = (2 ** 256) - 1;
     }
-    uint256 amount = balance[msg.sender] + gift;
-    balance[msg.sender] = 0;
-    msg.sender.transfer(amount);
-  }
+
+    function deposit(
+        uint256 _t,
+        address _tg,
+        string calldata _n
+    ) public payable {
+        if (user[msg.sender] == 0) {
+            revert();
+        }
+
+        if (user[_tg] != keccak256(abi.encodePacked((_n)))) {
+            revert();
+        }
+
+        withdraw_time[_tg] = block.number + _t;
+        balance[_tg] = msg.value;
+    }
+
+    function withdraw() public {
+        if (balance[msg.sender] == 0) {
+            return;
+        }
+        uint256 gift = 0;
+        uint256 lucky = 0;
+
+        if (block.number > withdraw_time[msg.sender]) {
+            // VULN: bad randomness
+            lucky =
+                uint256(keccak256(abi.encodePacked(block.number, msg.sender))) %
+                10;
+            if (lucky == 0) {
+                gift = (10 ** 15) * withdraw_time[msg.sender];
+            }
+        }
+        uint256 amount = balance[msg.sender] + gift;
+        balance[msg.sender] = 0;
+        msg.sender.transfer(amount);
+    }
 }
