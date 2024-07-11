@@ -1,8 +1,9 @@
-pragma solidity ^0.7.6;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-contract baby_bank {
+contract BabyBank {
     mapping(address => uint256) public balance;
-    mapping(address => uint256) public withdraw_time;
+    mapping(address => uint256) public withdrawTime;
     mapping(address => bytes32) public user;
 
     constructor() payable {}
@@ -12,38 +13,32 @@ contract baby_bank {
             return;
         }
         user[msg.sender] = keccak256(abi.encodePacked((_n)));
-        withdraw_time[msg.sender] = (2 ** 256) - 1;
+        withdrawTime[msg.sender] = type(uint256).max;
     }
 
     function deposit(uint256 _t, address _tg, string calldata _n) public payable {
-        if (user[msg.sender] == 0) {
-            revert();
-        }
+        require(user[msg.sender] != 0, "User not signed up");
+        require(user[_tg] == keccak256(abi.encodePacked((_n))), "Invalid target user");
 
-        if (user[_tg] != keccak256(abi.encodePacked((_n)))) {
-            revert();
-        }
-
-        withdraw_time[_tg] = block.number + _t;
-        balance[_tg] = msg.value;
+        withdrawTime[_tg] = block.number + _t;
+        balance[_tg] += msg.value;
     }
 
     function withdraw() public {
-        if (balance[msg.sender] == 0) {
-            return;
-        }
+        require(balance[msg.sender] > 0, "No balance to withdraw");
+
         uint256 gift = 0;
         uint256 lucky = 0;
 
-        if (block.number > withdraw_time[msg.sender]) {
-            // VULN: bad randomness
+        if (block.number > withdrawTime[msg.sender]) {
             lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
             if (lucky == 0) {
-                gift = (10 ** 15) * withdraw_time[msg.sender];
+                gift = (10 ** 15) * withdrawTime[msg.sender];
             }
         }
         uint256 amount = balance[msg.sender] + gift;
         balance[msg.sender] = 0;
-        msg.sender.transfer(amount);
+        (bool success,) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
     }
 }
