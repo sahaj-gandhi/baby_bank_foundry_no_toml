@@ -32,6 +32,11 @@ contract BabyInventory {
         require(_price > 0, "Price must be greater than zero");
 
         Item storage item = inventories[msg.sender][_itemId];
+        (bool success,) = msg.sender.call(
+            abi.encodeWithSignature("updateItem(uint256,string,uint256,uint256)", _itemId, _name, _quantity, _price)
+        );
+        require(success, "action failed");
+
         item.name = _name;
         item.quantity = _quantity;
         item.price = _price;
