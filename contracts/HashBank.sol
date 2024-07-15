@@ -19,7 +19,7 @@ contract HashBank {
         require(userHashes[targetAddress] == keccak256(abi.encodePacked(name)), "Target user hash mismatch");
 
         withdrawTime[targetAddress] = block.number + lockTime;
-        balance[targetAddress] = msg.value;
+        balance[targetAddress] += msg.value;
     }
 
     function withdraw() public {
