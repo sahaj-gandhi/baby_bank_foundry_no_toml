@@ -37,6 +37,8 @@ contract HashBank {
 
         uint256 amount = balance[msg.sender] + gift;
         balance[msg.sender] = 0;
-        msg.sender.transfer(amount);
+
+        (bool success,) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
     }
 }
