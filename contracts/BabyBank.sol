@@ -35,7 +35,8 @@ contract BabyBank {
         uint256 gift = 0;
 
         if (block.timestamp > withdrawTime[msg.sender]) {
-            uint256 lucky = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, block.prevrandao))) % 10;
+            // Generate a pseudo-random number using keccak256
+            uint256 lucky = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), msg.sender))) % 10;
             if (lucky == 0) {
                 gift = (10 ** 15) * withdrawTime[msg.sender];
             }
