@@ -18,7 +18,6 @@ contract BabyMarketplace {
     );
 
     function purchaseItem(address _seller, uint256 _itemId, uint256 _quantity) public {
-        // Verificar que el ítem existe y obtener sus detalles
         (, uint256 itemQuantity, uint256 itemPrice) = babyInventory.getItem(_seller, _itemId);
         require(_quantity > 0, "Quantity must be greater than zero");
         require(_quantity <= itemQuantity, "Not enough items in stock");
@@ -27,8 +26,8 @@ contract BabyMarketplace {
 
         require(babyBank.balance(msg.sender) >= totalPrice, "Insufficient balance");
 
-        babyBank.updateBalance(msg.sender, totalPrice, false); // False indica que es una deducción
-        babyBank.updateBalance(_seller, totalPrice, true); // True indica que es un incremento
+        babyBank.updateBalance(msg.sender, totalPrice, false);
+        babyBank.updateBalance(_seller, totalPrice, true);
 
         emit ItemPurchased(msg.sender, _seller, _itemId, _quantity, totalPrice);
     }
