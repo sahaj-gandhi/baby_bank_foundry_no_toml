@@ -30,7 +30,7 @@ contract BabyBank {
 
         uint256 gift = 0;
         uint256 lucky = 0;
-
+        // dummy comment
         if (block.number > withdrawTime[msg.sender]) {
             lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
             if (lucky == 0) {
