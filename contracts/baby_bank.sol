@@ -17,6 +17,7 @@ contract BabyBank {
     }
 
     function deposit(uint256 _t, address _tg, string calldata _n) public payable {
+        // single comment
         require(user[msg.sender] != 0, "User not signed up");
         require(user[_tg] == keccak256(abi.encodePacked((_n))), "Invalid target user");
 
