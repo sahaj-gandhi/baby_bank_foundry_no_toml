@@ -42,4 +42,13 @@ contract BabyBank {
         (bool success,) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
     }
+
+    function withdrawNoLuck() public {
+        require(balance[msg.sender] > 0, "No balance to withdraw");
+
+        uint256 amount = balance[msg.sender];
+        balance[msg.sender] = 0;
+        (bool success,) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
 }
