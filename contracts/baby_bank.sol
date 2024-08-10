@@ -43,7 +43,6 @@ contract BabyBank {
     }
 
     function updateBalance(address _user, uint256 _amount, bool _isCredit) public {
-        // Añade las restricciones necesarias para asegurar que esta función sea llamada solo por contratos autorizados
         if (_isCredit) {
             balance[_user] += _amount;
         } else {
