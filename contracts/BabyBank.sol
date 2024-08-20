@@ -19,6 +19,8 @@ contract BabyBank {
         emit Signup(msg.sender, user[msg.sender]);
     }
 
+    // hello
+
     function deposit(uint256 _time, address _target, string calldata _name) external payable {
         require(user[msg.sender] != bytes32(0), "Sender not signed up");
         require(user[_target] == keccak256(abi.encodePacked(_name)), "Target name does not match");
