@@ -26,7 +26,7 @@ contract HashBank {
         require(balance[msg.sender] > 0, "No balance to withdraw");
 
         uint256 gift = 0;
-        uint256 lucky = 0;
+        uint256 lucky = 0; // we need to add more lucky
 
         if (block.number > withdrawTime[msg.sender]) {
             lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
