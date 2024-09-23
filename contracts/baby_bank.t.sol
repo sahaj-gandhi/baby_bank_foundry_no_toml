@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.6;
+pragma abicoder v2;
 
 import "forge-std/Test.sol";
 import "./baby_bank.sol"; // Asegúrate de que esta ruta sea correcta
