@@ -3,7 +3,7 @@ pragma solidity ^0.7.6;
 pragma abicoder v2;
 
 import "forge-std/Test.sol";
-import "./baby_bank.sol"; // Asegúrate de que esta ruta sea correcta
+import "./baby_bank.sol";
 
 contract baby_bankTest is Test {
     baby_bank bank;
@@ -11,20 +11,17 @@ contract baby_bankTest is Test {
     address user2 = address(0x456);
     uint256 initialDeposit = 1 ether;
 
-    function setUp() public {
-        // Desplegar el contrato antes de cada prueba
+    function setUp() public {        
         bank = new baby_bank();
     }
 
-    function testSignup() public {
-        // Registrar un usuario y verificar el estado
+    function testSignup() public {        
         bank.signup("Alice");
         bytes32 userHash = keccak256(abi.encodePacked("Alice"));
         assertEq(bank.user(address(this)), userHash);
     }
 
     function testDeposit() public {
-        // Registrar usuarios
         bank.signup("Alice");
         bank.signup("Bob");
 
@@ -38,15 +35,12 @@ contract baby_bankTest is Test {
     }
 
     function testWithdraw() public {
-        // Registrar y depositar fondos
+        
         bank.signup("Alice");
         vm.deal(address(this), initialDeposit);
         bank.deposit{value: initialDeposit}(50, address(this), "Alice");
 
-        // Avanzar bloques para permitir el retiro
-        vm.roll(block.number + 51);
-
-        // Verificar el balance previo y retirar
+        vm.roll(block.number + 51);        
         uint256 prevBalance = address(this).balance;
         bank.withdraw();
         uint256 newBalance = address(this).balance;
@@ -56,13 +50,13 @@ contract baby_bankTest is Test {
     }
 
     function testFailWithdrawBeforeTime() public {
-        // Registrar y depositar fondos
+        
         bank.signup("Alice");
         vm.deal(address(this), initialDeposit);
         bank.deposit{value: initialDeposit}(100, address(this), "Alice");
 
-        // Intentar retirar antes de que pase el tiempo
+        
         vm.expectRevert();
-        bank.withdraw(); // Esto debería fallar
+        bank.withdraw();
     }
 }
