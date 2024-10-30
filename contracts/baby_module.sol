@@ -11,8 +11,8 @@ interface IModule {
 contract baby_module is IModule {
     mapping(address => mapping(address => bool)) private _isAuthorized;
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IModule).interfaceId || interfaceId == type(IERC165).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+        return interfaceId == type(IModule).interfaceId;
     }
 
     function isInitialized(address smartAccount) external view override returns (bool) {
