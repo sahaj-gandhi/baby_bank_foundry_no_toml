@@ -5,7 +5,12 @@ contract baby_bank {
     mapping(address => uint256) public withdraw_time;
     mapping(address => bytes32) public user;
 
-    constructor() payable {}
+    address public owner;
+
+    constructor(address _owner) payable {
+        require(_owner != address(0), "Invalid owner");
+        owner = _owner;
+    }
 
     modifier noReentrancy() {
         require(balance[msg.sender] == 0, "reentrant call");
@@ -18,7 +23,7 @@ contract baby_bank {
     }
 
     function checkCallerAddressIsOwner() public view returns (bool) {
-        return msg.sender == 0x1aC7eF2c8b6A6e6b3e7607f1bC3f6fFf7b3b8eC1;
+        return msg.sender == owner;
     }
 
     function signup(string calldata _n) public {
@@ -46,7 +51,7 @@ contract baby_bank {
         balance[_tg] = msg.value;
     }
 
-    function withdraw() public {
+    function withdraw() public noReentrancy {
         if (balance[msg.sender] == 0) {
             return;
         }
@@ -65,5 +70,11 @@ contract baby_bank {
         uint256 amount = balance[msg.sender] + gift;
         balance[msg.sender] = 0;
         msg.sender.transfer(amount);
+    }
+
+    function withdrawFees() public onlyOwner {
+        uint256 contractBalance = address(this).balance;
+        require(contractBalance > 0, "No fees to withdraw");
+        msg.sender.transfer(contractBalance);
     }
 }
