@@ -1,4 +1,4 @@
-// pragma solidity ^0.5.0;
+pragma solidity ^0.5.0;
 
 contract TxOrigin {
     address payable owner;
@@ -25,3 +25,5 @@ contract TxOrigin {
         tx.origin.transfer(address(this).balance);
     }
 }
+
+// added a comment to trigger a new build
