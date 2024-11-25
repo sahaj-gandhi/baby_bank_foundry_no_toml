@@ -12,6 +12,7 @@ contract baby_bank {
 
     constructor() payable {}
 
+    // de nothing comment
     modifier onlyRegistered() {
         require(userHash[msg.sender] != 0, "User not registered");
         _;
