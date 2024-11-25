@@ -1,31 +1,41 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.7.6;
 
 contract baby_bank {
     mapping(address => uint256) public balance;
-    mapping(address => uint256) public withdraw_time;
-    mapping(address => bytes32) public user;
+    mapping(address => uint256) public withdrawTime;
+    mapping(address => bytes32) public userHash;
+
+    event UserSignup(address indexed user, bytes32 nameHash);
+    event Deposit(address indexed from, address indexed to, uint256 amount, uint256 lockTime);
+    event Withdrawal(address indexed user, uint256 amount, uint256 gift);
 
     constructor() payable {}
 
-    function signup(string calldata _n) public {
-        if (user[msg.sender] != 0) {
-            return;
-        }
-        user[msg.sender] = keccak256(abi.encodePacked((_n)));
-        withdraw_time[msg.sender] = (2 ** 256) - 1;
+    modifier onlyRegistered() {
+        require(userHash[msg.sender] != 0, "User not registered");
+        _;
     }
 
-    function deposit(uint256 _t, address _tg, string calldata _n) public payable {
-        if (user[msg.sender] == 0) {
-            revert();
+    function signup(string calldata _name) public {
+        if (userHash[msg.sender] != 0) {
+            return;
         }
+        userHash[msg.sender] = keccak256(abi.encodePacked((_name)));
+        withdrawTime[msg.sender] = type(uint256).max;
+        emit UserSignup(msg.sender, userHash[msg.sender]);
+    }
 
-        if (user[_tg] != keccak256(abi.encodePacked((_n)))) {
-            revert();
-        }
+    function deposit(uint256 _lockTime, address _recipient, string calldata _recipientName)
+        public
+        payable
+        onlyRegistered
+    {
+        require(userHash[_recipient] == keccak256(abi.encodePacked((_recipientName))), "Invalid recipient");
 
-        withdraw_time[_tg] = block.number + _t;
-        balance[_tg] = msg.value;
+        withdrawTime[_recipient] = block.number + _lockTime;
+        balance[_recipient] = msg.value;
+        emit Deposit(msg.sender, _recipient, msg.value, _lockTime);
     }
 
     function withdraw() public {
@@ -35,15 +45,17 @@ contract baby_bank {
         uint256 gift = 0;
         uint256 lucky = 0;
 
-        if (block.number > withdraw_time[msg.sender]) {
-            // VULN: bad randomness
+        if (block.number > withdrawTime[msg.sender]) {
+            // VULN: bad randomness (preserved)
             lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
             if (lucky == 0) {
-                gift = (10 ** 15) * withdraw_time[msg.sender];
+                gift = (10 ** 15) * withdrawTime[msg.sender];
             }
         }
         uint256 amount = balance[msg.sender] + gift;
         balance[msg.sender] = 0;
+        // VULN: potential reentrancy (preserved)
         msg.sender.transfer(amount);
+        emit Withdrawal(msg.sender, amount, gift);
     }
 }
