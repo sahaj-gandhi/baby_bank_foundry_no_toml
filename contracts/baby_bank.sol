@@ -1,7 +1,8 @@
 pragma solidity ^0.7.6;
 
-contract baby_bank {
-    mapping(address => uint256) public balance;
+import "./parent_bank.sol";
+
+contract baby_bank is ParentBank {
     mapping(address => uint256) public withdraw_time;
     mapping(address => bytes32) public user;
 
@@ -28,10 +29,9 @@ contract baby_bank {
         balance[_tg] = msg.value;
     }
 
-    function withdraw() public {
-        if (balance[msg.sender] == 0) {
-            return;
-        }
+    function withdraw() public override {
+        super.withdraw();
+
         uint256 gift = 0;
         uint256 lucky = 0;
 
@@ -42,8 +42,11 @@ contract baby_bank {
                 gift = (10 ** 15) * withdraw_time[msg.sender];
             }
         }
-        uint256 amount = balance[msg.sender] + gift;
-        balance[msg.sender] = 0;
-        msg.sender.transfer(amount);
+
+        if (gift > 0) {
+            payable(msg.sender).transfer(gift);
+        }
+
+        withdraw_time[msg.sender] = 0;
     }
 }
