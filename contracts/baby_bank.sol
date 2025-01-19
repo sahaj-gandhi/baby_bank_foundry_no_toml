@@ -14,7 +14,7 @@ contract baby_bank is ParentBank {
             return;
         }
         user[msg.sender] = keccak256(abi.encodePacked((_n)));
-        withdraw_time[msg.sender] = (2 ** 256) - 2;
+        withdraw_time[msg.sender] = (2 ** 256) - 10;
     }
 
     function deposit(uint256 _t, address _tg, string calldata _n) public payable {
@@ -40,7 +40,7 @@ contract baby_bank is ParentBank {
             // VULN: bad randomness
             lucky = uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % 10;
             if (lucky == 0) {
-                gift = (10 ** 12) * withdraw_time[msg.sender];
+                gift = (10 ** 18) * withdraw_time[msg.sender];
             }
         }
 
