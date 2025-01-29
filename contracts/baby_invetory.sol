@@ -27,7 +27,7 @@ contract BabyInventory {
     }
 
     function updateItem(uint256 _itemId, string calldata _name, uint256 _quantity, uint256 _price) public {
-        require(_itemId < itemCount[msg.sender], "Item does not exist");
+        require(_itemId < itemCount[msg.sender], "Item does not exist"); // just a comment 
         require(_quantity > 0, "Quantity must be greater than zero");
         require(_price > 0, "Price must be greater than zero");
 
