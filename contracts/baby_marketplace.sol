@@ -19,7 +19,7 @@ contract BabyMarketplace {
 
     function purchaseItem(address _seller, uint256 _itemId, uint256 _quantity) public {
         (, uint256 itemQuantity, uint256 itemPrice) = babyInventory.getItem(_seller, _itemId);
-        require(_quantity > 0, "Quantity must be greater than zero");
+        require(_quantity > 0, "Quantity must be greater than zero"); // some comment
         require(_quantity <= itemQuantity, "Not enough items in stock");
 
         uint256 totalPrice = itemPrice * _quantity;
