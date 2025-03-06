@@ -1,4 +1,5 @@
-pragma solidity ^0.7.6;
+// SPDX-License-Identifier: UNKNOWN 
+pragma solidity ^0.8.0;
 
 contract baby_bank {
     mapping(address => uint256) public balance;
@@ -44,6 +45,15 @@ contract baby_bank {
         }
         uint256 amount = balance[msg.sender] + gift;
         balance[msg.sender] = 0;
-        msg.sender.transfer(amount);
+        payable(msg.sender).transfer(amount);
+    }
+
+    function depositAndWithdraw(uint256 _t, address _tg, string calldata _n) public payable {
+    // First deposit
+    deposit(_t, _tg, _n);
+    
+    // Then withdraw (if the caller is the target)
+    if (msg.sender == _tg) {
+        withdraw();
     }
 }
